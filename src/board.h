@@ -13,9 +13,14 @@ typedef uint_fast8_t tile_t;
 typedef struct {
     tile_t tiles[BOARD_WIDTH * BOARD_HEIGHT];
     int remainingTiles;
-} brd_t;
+} board_t;
 
-void print_board(brd_t *board);
-void set_tile(brd_t *board, uint_fast8_t x, uint_fast8_t y, player_t player);
+typedef board_t* board_ptr;
+typedef tile_t* tile_ptr;
+
+void print_board(board_ptr board);
+void take_tile(board_ptr board, uint_fast8_t x, uint_fast8_t y, player_t player);
+void clear_tile(board_ptr board, uint_fast8_t x, uint_fast8_t y);
+player_t get_tile(board_ptr board, uint_fast8_t x, uint_fast8_t y);
 
 #endif //CLANG_TICTACTOE_BOARD_H

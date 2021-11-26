@@ -1,20 +1,38 @@
 #include <stdio.h>
 
-#include <memory.h>
 #include "src/board.h"
 
+void test_board();
+
 int main() {
+    test_board();
+    return 0;
+}
+
+void test_board() {
     printf("Starting program.\n");
 
-    brd_t board = {.tiles={0}, .remainingTiles=BOARD_SIZE};
-    print_board(&board);
+    board_t board = {.tiles={0}, .remainingTiles=BOARD_SIZE};
+    board_t *board_ptr = &board;
 
-    set_tile(&board, 2, 1, CROSS);
-    print_board(&board);
+    print_board(board_ptr);
 
-    set_tile(&board, 2, 3, CROSS);
-    set_tile(&board, -1, 1, CROSS);
-    print_board(&board);
+    take_tile(board_ptr, 2, 1, CROSS);
+    print_board(board_ptr);
 
-    return 0;
+    take_tile(board_ptr, 1, 2, NAUGHT);
+    print_board(board_ptr);
+
+    take_tile(board_ptr, 2, 3, CROSS);
+    take_tile(board_ptr, -1, 1, CROSS);
+    print_board(board_ptr);
+
+    clear_tile(board_ptr, 2, 1);
+    print_board(board_ptr);
+
+    clear_tile(board_ptr, 2, 1);
+    print_board(board_ptr);
+
+    printf("Value at position (%d,%d) = %d\n", 1, 2, get_tile(board_ptr, 1, 2));
+    printf("Value at position (%d,%d) = %d\n", -1, 2, get_tile(board_ptr, -1, 2));
 }

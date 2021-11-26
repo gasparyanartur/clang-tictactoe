@@ -11,6 +11,6 @@ player_t get_other_player(player_t player) {
     }
 }
 
-uint_fast8_t is_player_t(player_t player) {
+bool is_player_t(player_t player) {
     return player <= NAUGHT;
 }
