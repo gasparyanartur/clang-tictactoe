@@ -30,7 +30,7 @@ void take_tile(board_ptr board, uint_fast8_t x, uint_fast8_t y, player_t player)
 
     tile_ptr t = get_tile_ptr(board, x, y);
     if (*t != NO_PLAYER) {
-        printf("Player %d attempted to take taken tile at position (%d,%d) containing value %d", player, x, y, *t);
+        printf("Player %d attempted to take taken tile at position (%d,%d) containing value %d\n", player, x, y, *t);
         return;
     }
 
@@ -46,7 +46,7 @@ void clear_tile(board_ptr board, uint_fast8_t x, uint_fast8_t y) {
 
     tile_ptr t = get_tile_ptr(board, x, y);
     if (*t == NO_PLAYER) {
-        printf("Attempted to clear empty tile at position (%d,%d)", x, y);
+        printf("Attempted to clear empty tile at position (%d,%d)\n", x, y);
         return;
     }
 

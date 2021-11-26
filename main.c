@@ -23,5 +23,12 @@ int main() {
     clear_tile(board_ptr, 2, 1);
     print_board(board_ptr);
 
+    clear_tile(board_ptr, 2, 1);
+    print_board(board_ptr);
+
+    printf("Value at position (%d,%d) = %d\n", 1, 2, get_tile(board_ptr, 1, 2));
+    printf("Value at position (%d,%d) = %d\n", -1, 2, get_tile(board_ptr, -1, 2));
+
+
     return 0;
 }
