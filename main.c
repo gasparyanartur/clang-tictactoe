@@ -1,6 +1,5 @@
 #include <stdio.h>
 
-#include <memory.h>
 #include "src/board.h"
 
 int main() {
@@ -11,15 +10,17 @@ int main() {
 
     print_board(board_ptr);
 
-    set_tile(board_ptr, 2, 1, CROSS);
+    take_tile(board_ptr, 2, 1, CROSS);
     print_board(board_ptr);
 
-    set_tile(board_ptr, 1, 2, NAUGHT);
+    take_tile(board_ptr, 1, 2, NAUGHT);
     print_board(board_ptr);
 
-    set_tile(board_ptr, 2, 3, CROSS);
-    set_tile(board_ptr, -1, 1, CROSS);
+    take_tile(board_ptr, 2, 3, CROSS);
+    take_tile(board_ptr, -1, 1, CROSS);
+    print_board(board_ptr);
 
+    clear_tile(board_ptr, 2, 1);
     print_board(board_ptr);
 
     return 0;

@@ -19,7 +19,8 @@ typedef board_t* board_ptr;
 typedef tile_t* tile_ptr;
 
 void print_board(board_ptr board);
-void set_tile(board_ptr board, uint_fast8_t x, uint_fast8_t y, player_t player);
+void take_tile(board_ptr board, uint_fast8_t x, uint_fast8_t y, player_t player);
+void clear_tile(board_ptr board, uint_fast8_t x, uint_fast8_t y);
 player_t get_tile(board_ptr board, uint_fast8_t x, uint_fast8_t y);
 
 #endif //CLANG_TICTACTOE_BOARD_H

@@ -17,7 +17,7 @@ void print_board(board_ptr board) {
            board->tiles[6], board->tiles[7], board->tiles[8]);
 }
 
-void set_tile(board_ptr board, uint_fast8_t x, uint_fast8_t y, player_t player) {
+void take_tile(board_ptr board, uint_fast8_t x, uint_fast8_t y, player_t player) {
     if (!is_player_t(player)) {
         printf("Attempted to interpret value '%d' as a player type.\n", player);
         return;
@@ -28,7 +28,30 @@ void set_tile(board_ptr board, uint_fast8_t x, uint_fast8_t y, player_t player) 
         return;
     }
 
-    *get_tile_ptr(board, x, y) = player;
+    tile_ptr t = get_tile_ptr(board, x, y);
+    if (*t != NO_PLAYER) {
+        printf("Player %d attempted to take taken tile at position (%d,%d) containing value %d", player, x, y, *t);
+        return;
+    }
+
+    *t = player;
+    board->remainingTiles--;
+}
+
+void clear_tile(board_ptr board, uint_fast8_t x, uint_fast8_t y) {
+    if (!coord_in_board(x, y)) {
+        printf("Attempted to reference illegal board coordinate (%d,%d).\n", x, y);
+        return;
+    }
+
+    tile_ptr t = get_tile_ptr(board, x, y);
+    if (*t == NO_PLAYER) {
+        printf("Attempted to clear empty tile at position (%d,%d)", x, y);
+        return;
+    }
+
+    *t = NO_PLAYER;
+    board->remainingTiles++;
 }
 
 player_t get_tile(board_ptr board, uint_fast8_t x, uint_fast8_t y) {
