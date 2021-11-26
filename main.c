@@ -2,7 +2,14 @@
 
 #include "src/board.h"
 
+void test_board();
+
 int main() {
+    test_board();
+    return 0;
+}
+
+void test_board() {
     printf("Starting program.\n");
 
     board_t board = {.tiles={0}, .remainingTiles=BOARD_SIZE};
@@ -28,7 +35,4 @@ int main() {
 
     printf("Value at position (%d,%d) = %d\n", 1, 2, get_tile(board_ptr, 1, 2));
     printf("Value at position (%d,%d) = %d\n", -1, 2, get_tile(board_ptr, -1, 2));
-
-
-    return 0;
 }
