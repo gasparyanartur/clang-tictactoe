@@ -4,12 +4,9 @@
 #include <stdio.h>
 #include "engine.h"
 
-#define loop while(1)
-
 /*
  * Private types
  */
-
 typedef enum {
     GAME_RUNNING
 } gamestatus_t;
