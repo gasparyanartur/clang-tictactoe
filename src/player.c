@@ -1,6 +1,6 @@
 #include "player.h"
 
-Player get_other_player(Player player) {
+player_t get_other_player(player_t player) {
     switch (player) {
         case CROSS:
             return NAUGHT;
@@ -9,4 +9,8 @@ Player get_other_player(Player player) {
         default:
             return NO_PLAYER;
     }
+}
+
+uint_fast8_t is_player_t(player_t player) {
+    return player <= NAUGHT;
 }
