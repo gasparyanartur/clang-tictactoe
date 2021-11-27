@@ -7,13 +7,9 @@
 /*
  * Private types
  */
-typedef enum {
-    GAME_RUNNING
-} gamestatus_t;
-
 typedef struct {
     board_ptr board;
-    gamestatus_t status;
+    bool isRunning;
     player_t currentPlayer;
     bool isHuman[2];
 } gamestate_t;
@@ -41,7 +37,7 @@ void run_game() {
     gamestate_t gamestate = {.board = &board, .status=GAME_RUNNING, .currentPlayer=PLAYER_X, .isHuman={true, true}};
 
     print_board(&board);
-    while (gamestate.status == GAME_RUNNING) {
+    while (gamestate.isRunning) {
         play_turn(&gamestate);
     }
 }
