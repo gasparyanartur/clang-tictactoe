@@ -2,15 +2,15 @@
 
 player_t get_other_player(player_t player) {
     switch (player) {
-        case CROSS:
-            return NAUGHT;
-        case NAUGHT:
-            return CROSS;
+        case PLAYER_X:
+            return PLAYER_O;
+        case PLAYER_O:
+            return PLAYER_X;
         default:
             return NO_PLAYER;
     }
 }
 
 bool is_player_t(player_t player) {
-    return player <= NAUGHT;
+    return player <= PLAYER_O;
 }

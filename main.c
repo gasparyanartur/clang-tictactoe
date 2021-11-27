@@ -19,14 +19,14 @@ void test_board() {
 
     print_board(boardPtr);
 
-    take_tile(boardPtr, 1, CROSS);
+    take_tile(boardPtr, 1, PLAYER_X);
     print_board(boardPtr);
 
-    take_tile(boardPtr, 4, NAUGHT);
+    take_tile(boardPtr, 4, PLAYER_O);
     print_board(boardPtr);
 
-    take_tile(boardPtr, 9, CROSS);
-    take_tile(boardPtr, -1, CROSS);
+    take_tile(boardPtr, 9, PLAYER_X);
+    take_tile(boardPtr, -1, PLAYER_X);
     print_board(boardPtr);
 
     clear_tile(boardPtr, 1);
