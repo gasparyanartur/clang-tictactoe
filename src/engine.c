@@ -12,46 +12,50 @@ typedef enum {
 } gamestatus_t;
 
 typedef struct {
+    board_ptr board;
     gamestatus_t status;
     player_t currentPlayer;
     bool isHuman[2];
 } gamestate_t;
 
-typedef gamestate_t* gamestate_ptr;
+typedef gamestate_t *gamestate_ptr;
 
 /*
  * Private function declaration
  */
-void play_turn(gamestate_ptr gamestate, board_ptr board);
+void play_turn(gamestate_ptr gamestate);
 uint_fast8_t get_move(gamestate_ptr gamestate);
-bool is_current_player_human(const gamestate_t *gamestate);
+bool is_current_player_human(gamestate_ptr gamestate);
 uint_fast8_t get_human_move(gamestate_ptr gamestate);
 uint_fast8_t get_ai_move(gamestate_ptr gamestate);
+
+bool is_valid_move(gamestate_ptr gamestate, uint_fast8_t tile);
 
 /*
  * Public functions
  */
 void run_game() {
-    gamestate_t gamestate = {.status=GAME_RUNNING, .currentPlayer=NAUGHT, .isHuman={true, true}};
     board_t board = {.tiles={0}, .remainingTiles=0};
+    gamestate_t gamestate = {.board = &board, .status=GAME_RUNNING, .currentPlayer=NAUGHT, .isHuman={true, true}};
 
+    print_board(&board);
     while (gamestate.status == GAME_RUNNING) {
-        play_turn(&gamestate, &board);
+        play_turn(&gamestate);
     }
 }
 
 /*
  * Private functions
  */
-void play_turn(gamestate_ptr gamestate, board_ptr board) {
-    uint_fast8_t move = get_move(gamestate);
+void play_turn(gamestate_ptr gamestate) {
+    tile_t move = get_move(gamestate);
 }
 
 uint_fast8_t get_move(gamestate_ptr gamestate) {
     return is_current_player_human(gamestate) ? get_human_move(gamestate) : get_ai_move(gamestate);
 }
 
-bool is_current_player_human(const gamestate_t *gamestate) {
+bool is_current_player_human(gamestate_ptr gamestate) {
     return gamestate->isHuman[gamestate->currentPlayer - 1];
 }
 
@@ -60,12 +64,16 @@ uint_fast8_t get_human_move(gamestate_ptr gamestate) {
     while (1) {
         printf("Select tile...\n");
         scanf_s("%d", &tile);
-        if (tile_in_board(tile))
+        if (is_valid_move(gamestate, tile))
             break;
         printf("Invalid input, try again.\n");
     }
     printf("Selecting tile: %d\n", tile);
     return tile;
+}
+
+bool is_valid_move(gamestate_ptr gamestate, tile_t tile) {
+    return tile_in_board(tile) && is_tile_empty(gamestate->board, tile)
 }
 
 uint_fast8_t get_ai_move(gamestate_ptr gamestate) {
