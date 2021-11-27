@@ -11,6 +11,7 @@ typedef struct {
     board_ptr board;
     bool isRunning;
     player_t currentPlayer;
+    player_t winningPlayer;
     bool isHuman[2];
 } gamestate_t;
 
@@ -29,17 +30,21 @@ bool is_valid_move(gamestate_ptr gamestate, uint_fast8_t tile);
 
 void process_gamestate(gamestate_ptr gamestate);
 
+void print_game_result(gamestate_ptr gamestate);
+
 /*
  * Public functions
  */
 void run_game() {
-    board_t board = {.tiles={0}, .remainingTiles=0};
-    gamestate_t gamestate = {.board = &board, .status=GAME_RUNNING, .currentPlayer=PLAYER_X, .isHuman={true, true}};
+    board_t board = {.tiles={0}, .remainingTiles=BOARD_SIZE};
+    gamestate_t gamestate = {.board = &board, .isRunning=true, .winningPlayer=NO_PLAYER, .currentPlayer=PLAYER_X, .isHuman={true, true}};
 
     print_board(&board);
     while (gamestate.isRunning) {
         play_turn(&gamestate);
     }
+
+    print_game_result(&gamestate);
 }
 
 /*
@@ -54,8 +59,28 @@ void play_turn(gamestate_ptr gamestate) {
     print_board(gamestate->board);
 }
 
+void print_game_result(gamestate_ptr gamestate) {
+    if (gamestate->winningPlayer == NO_PLAYER)
+        printf("Game ended in draw. ");
+    else
+        printf("Game won by player %d. ", gamestate->winningPlayer);
+
+    printf("Exiting program.\n");
+}
+
 void process_gamestate(gamestate_ptr gamestate) {
-    // TODO Implement
+    printf("%d\n", gamestate->board->remainingTiles);
+
+    if (is_winner(gamestate->board, gamestate->currentPlayer)) {
+        gamestate->winningPlayer = gamestate->currentPlayer;
+        gamestate->isRunning = false;
+    }
+    else if(gamestate->board->remainingTiles == 0) {
+        gamestate->isRunning = false;
+    }
+    else {
+        gamestate->currentPlayer = get_other_player(gamestate->currentPlayer);
+    }
 }
 
 uint_fast8_t get_move(gamestate_ptr gamestate) {
@@ -84,9 +109,9 @@ bool is_valid_move(gamestate_ptr gamestate, tile_t tile) {
     return tile_in_board(tile) && is_tile_empty(gamestate->board, tile);
 }
 
+
 uint_fast8_t get_ai_move(gamestate_ptr gamestate) {
     printf("Calling ai move despite it not being implemented.\n");
     return -1;
 }
-
 

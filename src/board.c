@@ -63,3 +63,7 @@ bool tile_in_board(tile_t tile) {
 bool is_tile_empty(board_ptr board, tile_t tile) {
     return get_tile(board, tile) == NO_PLAYER;
 }
+
+bool is_winner(board_ptr board, player_t tile) {
+    return 0;
+}
