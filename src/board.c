@@ -3,6 +3,18 @@
 #include "stdbool.h"
 
 /*
+ * Private Structures
+ */
+#define N_WIN_CONS 8
+#define WIN_PATTERN_LEN 3
+
+const tile_t WIN_CONDITIONS[N_WIN_CONS][WIN_PATTERN_LEN] = {
+        {0, 1, 2}, {3, 4, 5}, {6, 7, 8},
+        {0, 3, 6}, {1, 4, 7}, {2, 5, 8},
+        {0, 4, 8}, {2, 4, 6}
+};
+
+/*
  * Public Methods
  */
 void print_board(board_ptr board) {
@@ -64,6 +76,15 @@ bool is_tile_empty(board_ptr board, tile_t tile) {
     return get_tile(board, tile) == NO_PLAYER;
 }
 
-bool is_winner(board_ptr board, player_t tile) {
-    return 0;
+bool is_winner(board_ptr board, player_t player) {
+    for (int i = 0, score = 0; i < N_WIN_CONS; i++, score = 0) {
+        for (int j = 0; j < WIN_PATTERN_LEN; j++) {
+            int tile = WIN_CONDITIONS[i][j];
+            if (get_tile(board, tile) == player)
+                score++;
+        }
+        if (score == WIN_PATTERN_LEN)
+            return true;
+    }
+    return false;
 }
