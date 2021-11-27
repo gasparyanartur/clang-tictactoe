@@ -23,10 +23,10 @@ typedef gamestate_t* gamestate_ptr;
  * Private function declaration
  */
 void play_turn(gamestate_ptr gamestate, board_ptr board);
-
 uint_fast8_t get_move(gamestate_ptr gamestate);
-
 bool is_current_player_human(const gamestate_t *gamestate);
+uint_fast8_t get_human_move(gamestate_ptr gamestate);
+uint_fast8_t get_ai_move(gamestate_ptr gamestate);
 
 /*
  * Public functions
@@ -48,15 +48,29 @@ void play_turn(gamestate_ptr gamestate, board_ptr board) {
 }
 
 uint_fast8_t get_move(gamestate_ptr gamestate) {
-    if (is_current_player_human(gamestate)) {
-        int t;
-        printf("Select tile...\n");
-        scanf_s("%d", &t);
-        printf("Selecting tile: %d\n", t);
-    }
-
-    return 0;
+    return is_current_player_human(gamestate) ? get_human_move(gamestate) : get_ai_move(gamestate);
 }
 
-bool is_current_player_human(const gamestate_t *gamestate) { return gamestate->isHuman[gamestate->currentPlayer - 1]; }
+bool is_current_player_human(const gamestate_t *gamestate) {
+    return gamestate->isHuman[gamestate->currentPlayer - 1];
+}
+
+uint_fast8_t get_human_move(gamestate_ptr gamestate) {
+    int tile;
+    while (1) {
+        printf("Select tile...\n");
+        scanf_s("%d", &tile);
+        if (tile_in_board(tile))
+            break;
+        printf("Invalid input, try again.\n");
+    }
+    printf("Selecting tile: %d\n", tile);
+    return tile;
+}
+
+uint_fast8_t get_ai_move(gamestate_ptr gamestate) {
+    printf("Calling ai move despite it not being implemented.\n");
+    return -1;
+}
+
 

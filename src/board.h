@@ -3,6 +3,8 @@
 
 #include "player.h"
 #include "stdint.h"
+#include "stdio.h"
+#include "stdbool.h"
 
 #define BOARD_WIDTH 3
 #define BOARD_HEIGHT 3
@@ -22,5 +24,9 @@ void print_board(board_ptr board);
 void take_tile(board_ptr board, uint_fast8_t tile, player_t player);
 void clear_tile(board_ptr board, uint_fast8_t tile);
 player_t get_tile(board_ptr board, uint_fast8_t tile);
+
+bool tile_in_board(uint_fast8_t tile);
+
+
 
 #endif //CLANG_TICTACTOE_BOARD_H

@@ -6,8 +6,6 @@ uint_fast8_t coord_to_index(uint_fast8_t tile);
 bool coord_in_board(uint_fast8_t tile);
 tile_ptr get_tile_ptr(board_ptr board, uint_fast8_t tile);
 
-bool tile_in_board(uint_fast8_t tile);
-
 /*
  * Public Methods
  */
@@ -65,3 +63,4 @@ player_t get_tile(board_ptr board, uint_fast8_t tile) {
 bool tile_in_board(uint_fast8_t tile) {
     return tile < BOARD_SIZE;
 }
+
