@@ -69,18 +69,12 @@ void print_game_result(gamestate_ptr gamestate) {
 }
 
 void process_gamestate(gamestate_ptr gamestate) {
-    printf("%d\n", gamestate->board->remainingTiles);
-
-    if (is_winner(gamestate->board, gamestate->currentPlayer)) {
-        gamestate->winningPlayer = gamestate->currentPlayer;
+    gamestate->winningPlayer = get_winner(gamestate->board);
+    if (gamestate->winningPlayer != NO_PLAYER || gamestate->board->remainingTiles == 0)
         gamestate->isRunning = false;
-    }
-    else if(gamestate->board->remainingTiles == 0) {
-        gamestate->isRunning = false;
-    }
-    else {
+    else
         gamestate->currentPlayer = get_other_player(gamestate->currentPlayer);
-    }
+
 }
 
 uint_fast8_t get_move(gamestate_ptr gamestate) {

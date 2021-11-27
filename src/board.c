@@ -76,15 +76,21 @@ bool is_tile_empty(board_ptr board, tile_t tile) {
     return get_tile(board, tile) == NO_PLAYER;
 }
 
-bool is_winner(board_ptr board, player_t player) {
-    for (int i = 0, score = 0; i < N_WIN_CONS; i++, score = 0) {
+player_t get_winner(board_ptr board) {
+    for (int i = 0; i < N_WIN_CONS; i++) {
+        int score[2] = {0};
         for (int j = 0; j < WIN_PATTERN_LEN; j++) {
             int tile = WIN_CONDITIONS[i][j];
-            if (get_tile(board, tile) == player)
-                score++;
+            int value = get_tile(board, tile);
+            if (value != NO_PLAYER)
+                score[value - 1]++;
         }
-        if (score == WIN_PATTERN_LEN)
-            return true;
+
+        if (score[PLAYER_X - 1] == WIN_PATTERN_LEN)
+            return PLAYER_X;
+        else if (score[PLAYER_O - 1] == WIN_PATTERN_LEN)
+            return PLAYER_O;
     }
-    return false;
+    return NO_PLAYER;
 }
+
