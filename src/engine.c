@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "engine.h"
+#include "ai.h"
 
 /*
  * Private types
@@ -21,10 +22,10 @@ typedef gamestate_t *gamestate_ptr;
  * Private function declaration
  */
 void play_turn(gamestate_ptr gamestate);
-uint_fast8_t get_move(gamestate_ptr gamestate);
+tile_t get_move(gamestate_ptr gamestate);
 bool is_current_player_human(gamestate_ptr gamestate);
-uint_fast8_t get_human_move(gamestate_ptr gamestate);
-uint_fast8_t get_ai_move(gamestate_ptr gamestate);
+tile_t get_human_move(gamestate_ptr gamestate);
+tile_t get_ai_move(gamestate_ptr gamestate);
 
 bool is_valid_move(gamestate_ptr gamestate, uint_fast8_t tile);
 
@@ -37,7 +38,7 @@ void print_game_result(gamestate_ptr gamestate);
  */
 void run_game() {
     board_t board = {.tiles={0}, .remainingTiles=BOARD_SIZE};
-    gamestate_t gamestate = {.board = &board, .isRunning=true, .winningPlayer=NO_PLAYER, .currentPlayer=PLAYER_X, .isHuman={true, true}};
+    gamestate_t gamestate = {.board = &board, .isRunning=true, .winningPlayer=NO_PLAYER, .currentPlayer=PLAYER_X, .isHuman={true, false}};
 
     print_board(&board);
     while (gamestate.isRunning) {
@@ -77,7 +78,7 @@ void process_gamestate(gamestate_ptr gamestate) {
 
 }
 
-uint_fast8_t get_move(gamestate_ptr gamestate) {
+tile_t get_move(gamestate_ptr gamestate) {
     return is_current_player_human(gamestate) ? get_human_move(gamestate) : get_ai_move(gamestate);
 }
 
@@ -85,7 +86,7 @@ bool is_current_player_human(gamestate_ptr gamestate) {
     return gamestate->isHuman[gamestate->currentPlayer - 1];
 }
 
-uint_fast8_t get_human_move(gamestate_ptr gamestate) {
+tile_t get_human_move(gamestate_ptr gamestate) {
     int tile;
     while (1) {
         // TODO Handle string input
@@ -104,8 +105,9 @@ bool is_valid_move(gamestate_ptr gamestate, tile_t tile) {
 }
 
 
-uint_fast8_t get_ai_move(gamestate_ptr gamestate) {
-    printf("Calling ai move despite it not being implemented.\n");
-    return -1;
+tile_t get_ai_move(gamestate_ptr gamestate) {
+    tile_t tile = calculate_optimal_move(gamestate->board, gamestate->currentPlayer);
+    printf("AI chose tile %d\n", tile);
+    return tile;
 }
 
