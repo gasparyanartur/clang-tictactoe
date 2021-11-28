@@ -94,3 +94,7 @@ player_t get_winner(board_ptr board) {
     return NO_PLAYER;
 }
 
+bool is_board_full(board_ptr board) {
+    return board->remainingTiles == 0;
+}
+
