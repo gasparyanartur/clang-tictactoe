@@ -7,6 +7,8 @@ void undoMove(board_ptr board, const tile_t *move_stack, int *depth, player_t *c
 
 void makeMove(board_ptr board, tile_t *move_stack, int *depth, player_t *currentPlayer, tile_t *tile);
 
+int get_board_score(board_ptr board, player_t player);
+
 void init_move_score(int * scores, int len) {
     int i;
     for(i = 0; i < len; i += 2)
@@ -16,104 +18,79 @@ void init_move_score(int * scores, int len) {
 }
 
 tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
-    /* Implemented using the minimax algorithm with a loop
-     * Assumes board starts off non-full and without a winner.
-     */
-
-    /* Minimax Algorithm
-     *  For each entry tile:
-     *      if tile not empty:
-     *          continue
+    /*  Implemented using the minimax algorithm with a loop
+     *  Assumes board starts off non-full and without a winner.
      *
-     *      make move tile
-     *      if maximizing
-     *          if ai wins
-     *              score at depth = max
-     *              undo move tile
-     *          elif draw
-     *              score at depth = 0
-     *              undo move tile
-     *          else
-     *              for each tile from entry tile + 1:
-     *                  if tile empty:
-     *                      make move tile
-     *      else
-     *          if ai loses
-                    score at depth = min
-                    undo move tile
-                elif draw
-                    score at depth = 0
-                    undo move tile
-     *          continue
-     *      if
+     *  Minimax algorithm:
+     *      for each tile:
+     *          calculate score
+     *
+     *          if no winner and tile is empty:
+     *              take tile
+     *              restart tile query
+     *
+     *          elif score > high score at depth * weight:
+     *              high score at depth = score * weight
+     *
+     *          restore tile
+     *
+     *      return high_score * weight
      */
-    tile_t move_stack[BOARD_SIZE];
-    int move_scores[BOARD_SIZE];
-    init_move_score(move_scores, board->remainingTiles);
-
-    // TODO Implement remaining moves using linked list to remove unnecessary looping over taken values
-    // TODO Fix bug
-
-    int depth = 0;
-    bool maximizing = true;
-    player_t enemyPlayer = get_other_player(aiPlayer);
+    tile_t tileStack[BOARD_SIZE] = {0};
+    int depthScores[BOARD_SIZE] = {-1, 1, -1, 1, -1, 1, -1, 1, -1};
     tile_t optimalTile = -1;
-
     tile_t tile = 0;
+    player_t currentPlayer = aiPlayer;
+    uint_fast8_t depth = 0;
+    int weight = 1;
+
     while (tile < BOARD_SIZE) {
-        if (!is_tile_empty(board, tile)) {
-            tile++;
-        }
-        else {
-            if (maximizing) {
-                player_t winner = get_winner(board);
-                if (winner == aiPlayer) {
-                    move_scores[depth] = MAX_SCORE;
-                    optimalTile = tile;
-                    maximizing = false;
-                    tile = move_stack[depth--] + 1;
-                } else {  // Guaranteed no winner since opponent can't win on AI's turn.
-                    if (is_board_full(board)) {
-                        if (move_scores[depth] < 0) {
-                            move_scores[depth] = 0;
-                            optimalTile = tile;
-                        }
-                        maximizing = false;
-                        tile = move_stack[depth--] + 1;
-                    } else {  // Make move on empty tile
-                        move_stack[depth++] = tile;
-                        take_tile(board, tile, aiPlayer);
-                        maximizing = false;
-                        tile = 0;
-                    }
-                }
-            } else {
-                player_t winner = get_winner(board);
-                if (winner == enemyPlayer) {
-                    move_scores[depth] = MIN_SCORE;
-                    maximizing = true;
-                    tile = move_stack[depth--] + 1;
-                } else {  // Guaranteed no winner since AI can't win on opponent's turn
-                    if (is_board_full(board)) {
-                        if (move_scores[depth] > 0)
-                            move_scores[depth] = 0;
-                        maximizing = true;
-                        tile = move_stack[depth--] + 1;
-                    } else {  // Make move on empty tile
-                        move_stack[depth++] = tile;
-                        take_tile(board, tile, enemyPlayer);
-                        maximizing = true;
-                        tile = 0;
-                    }
-                }
+        int score = get_board_score(board, currentPlayer);
+
+        if (score == 0) {
+            if (is_tile_empty(board, tile)) {
+                printf("depth: %d\n", depth);
+                take_tile(board, tile, currentPlayer);
+                tileStack[depth++] = tile;
+                weight = -weight;
+                currentPlayer = get_other_player(currentPlayer);
+                tile = 0;
+            }
+            else {
+                tile++;
             }
         }
+        else {
+            printf("Score: %d, Depth: %d, Weight: %d, hiScoreAtDepth: %d\n", score, depth, weight, depthScores[depth]);
+            if (score >= depthScores[depth] * weight) {
+                printf("Optimal move at depth %d is %d\n", depth, tileStack[depth-1]);
+                depthScores[depth] = score * weight;
+                optimalTile = tileStack[depth - 1];
+            }
 
-        if (tile == BOARD_SIZE && depth > 0) {
-            tile = move_stack[depth--] + 1;
-            maximizing = !maximizing;
+            if (depth == 0)
+                break;
+
+            // TODO Fix bug where it does not set the move correctly
+
+            tile = tileStack[--depth];
+            clear_tile(board, tile);
+            weight = -weight;
+            currentPlayer = get_other_player(currentPlayer);
+            tile++;
         }
     }
 
     return optimalTile;
+}
+
+int get_board_score(board_ptr board, player_t player) {
+    player_t winner = get_winner(board);
+
+    if (winner == player)
+        return 1;
+    else if (winner == NO_PLAYER)
+        return 0;
+    else
+        return -1;
 }

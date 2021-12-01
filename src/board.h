@@ -28,5 +28,4 @@ bool is_board_full(board_ptr board);
 
 player_t get_winner(board_ptr board);
 
-
 #endif //CLANG_TICTACTOE_BOARD_H
