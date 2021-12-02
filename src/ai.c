@@ -46,14 +46,21 @@ tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
     uint_fast8_t depth = 0;
     int weight = 1;
 
-    while (true) {
+    while (tile < BOARD_SIZE) {
         int score = get_board_score(board, currentPlayer);
         printf("Score: %d\n", score);
 
         if (score == 0 && !is_board_full(board)) {
 
-            while (!is_tile_empty(board, tile))
+            while (!is_tile_empty(board, tile) && tile < BOARD_SIZE)
                 tile++;
+
+            if (tile >= BOARD_SIZE) {
+                if (depth == 0)
+                    break;
+                tile = tileStack[--depth];
+                continue;
+            }
 
             if (tile == 9)
                 printf("ATTEMPTED TO ACCESS TILE 9\n");
@@ -70,10 +77,11 @@ tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
         }
         else {
             printf("Score: %d, Depth: %d, Weight: %d, hiScoreAtDepth: %d\n", score, depth, weight, depthScores[depth]);
-            if (score >= depthScores[depth] * weight) {
+            if (score * weight >= depthScores[depth] * weight) {
                 printf("Optimal move at depth %d is %d\n", depth, tileStack[depth-1]);
                 depthScores[depth] = score * weight;
-                optimalTile = tileStack[depth - 1];
+                if (weight == 1)
+                    optimalTile = tileStack[depth - 1];
             }
 
             if (depth == 0)
@@ -87,11 +95,8 @@ tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
             weight = -weight;
             currentPlayer = get_other_player(currentPlayer);
             tile++;
-            if (tile == BOARD_SIZE) {
-                if (depth == 0)
-                    break;
-                tile = tileStack[--depth];
-            }
+            printf("Tile %d\n", tile);
+
         }
     }
 
