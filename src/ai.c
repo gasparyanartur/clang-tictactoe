@@ -29,8 +29,10 @@ tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
      *              take tile
      *              restart tile query
      *
-     *          elif score > high score at depth * weight:
+     *          elif weight * score > high score at depth * weight:
      *              high score at depth = score * weight
+     *              if maximizing:
+     *                  optimal tile = tile
      *
      *          restore tile
      *
@@ -44,21 +46,27 @@ tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
     uint_fast8_t depth = 0;
     int weight = 1;
 
-    while (tile < BOARD_SIZE) {
+    while (true) {
         int score = get_board_score(board, currentPlayer);
+        printf("Score: %d\n", score);
 
-        if (score == 0) {
-            if (is_tile_empty(board, tile)) {
-                printf("depth: %d\n", depth);
-                take_tile(board, tile, currentPlayer);
-                tileStack[depth++] = tile;
-                weight = -weight;
-                currentPlayer = get_other_player(currentPlayer);
-                tile = 0;
-            }
-            else {
+        if (score == 0 && !is_board_full(board)) {
+
+            while (!is_tile_empty(board, tile))
                 tile++;
-            }
+
+            if (tile == 9)
+                printf("ATTEMPTED TO ACCESS TILE 9\n");
+            else
+                printf("FOUND EMPTY TILE AT %d\n", tile);
+
+            printf("depth: %d\n", depth);
+            printf("Taking tile %d\n", tile);
+            take_tile(board, tile, currentPlayer);
+            tileStack[depth++] = tile;
+            weight = -weight;
+            currentPlayer = get_other_player(currentPlayer);
+            tile = 0;
         }
         else {
             printf("Score: %d, Depth: %d, Weight: %d, hiScoreAtDepth: %d\n", score, depth, weight, depthScores[depth]);
@@ -74,10 +82,16 @@ tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
             // TODO Fix bug where it does not set the move correctly
 
             tile = tileStack[--depth];
+            printf("Clearing tile %d\n", tile);
             clear_tile(board, tile);
             weight = -weight;
             currentPlayer = get_other_player(currentPlayer);
             tile++;
+            if (tile == BOARD_SIZE) {
+                if (depth == 0)
+                    break;
+                tile = tileStack[--depth];
+            }
         }
     }
 

@@ -38,7 +38,7 @@ void print_game_result(gamestate_ptr gamestate);
  */
 void run_game() {
     //board_t board = {.tiles={0}, .remainingTiles=BOARD_SIZE};
-    board_t board = {.tiles={1, 0, 1, 2, 0, 0, 2, 0, 0}, .remainingTiles=5};
+    board_t board = {.tiles={1, 0, 2, 2, 1, 1, 1, 0, 2}, .remainingTiles=2};
     gamestate_t gamestate = {.board = &board, .isRunning=true, .winningPlayer=NO_PLAYER, .currentPlayer=PLAYER_X, .isHuman={true, false}};
 
     print_board(&board);
