@@ -1,21 +1,12 @@
 #include "ai.h"
 
 #define MAX_SCORE 100
-#define MIN_SCORE -100
 
 void undoMove(board_ptr board, const tile_t *move_stack, int *depth, player_t *currentPlayer, tile_t *tile);
 
 void makeMove(board_ptr board, tile_t *move_stack, int *depth, player_t *currentPlayer, tile_t *tile);
 
 int get_board_score(board_ptr board, player_t player);
-
-void init_move_score(int * scores, int len) {
-    int i;
-    for(i = 0; i < len; i += 2)
-        scores[i] = -MAX_SCORE;
-    for(i = 1; i < len; i += 2)
-        scores[i] = MAX_SCORE;
-}
 
 tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
     /*  Implemented using the minimax algorithm with a loop
@@ -48,10 +39,8 @@ tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
 
     while (tile < BOARD_SIZE) {
         int score = get_board_score(board, currentPlayer);
-        printf("Score: %d\n", score);
 
         if (score == 0 && !is_board_full(board)) {
-
             while (!is_tile_empty(board, tile) && tile < BOARD_SIZE)
                 tile++;
 
@@ -62,13 +51,6 @@ tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
                 continue;
             }
 
-            if (tile == 9)
-                printf("ATTEMPTED TO ACCESS TILE 9\n");
-            else
-                printf("FOUND EMPTY TILE AT %d\n", tile);
-
-            printf("depth: %d\n", depth);
-            printf("Taking tile %d\n", tile);
             take_tile(board, tile, currentPlayer);
             tileStack[depth++] = tile;
             weight = -weight;
@@ -76,12 +58,9 @@ tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
             tile = 0;
         }
         else {
-            printf("Score: %d, Depth: %d, Weight: %d, hiScoreAtDepth: %d\n", score, depth, weight, depthScores[depth]);
             if (score * weight >= depthScores[depth] * weight) {
-                printf("Optimal move at depth %d is %d\n", depth, tileStack[depth-1]);
                 depthScores[depth] = score * weight;
-                if (weight == 1)
-                    optimalTile = tileStack[depth - 1];
+                optimalTile = tileStack[depth - 1];
             }
 
             if (depth == 0)
@@ -90,13 +69,10 @@ tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
             // TODO Fix bug where it does not set the move correctly
 
             tile = tileStack[--depth];
-            printf("Clearing tile %d\n", tile);
             clear_tile(board, tile);
             weight = -weight;
             currentPlayer = get_other_player(currentPlayer);
             tile++;
-            printf("Tile %d\n", tile);
-
         }
     }
 
