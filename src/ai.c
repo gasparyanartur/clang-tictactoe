@@ -2,10 +2,6 @@
 
 #define MAX_SCORE 100
 
-void undoMove(board_ptr board, const tile_t *move_stack, int *depth, player_t *currentPlayer, tile_t *tile);
-
-void makeMove(board_ptr board, tile_t *move_stack, int *depth, player_t *currentPlayer, tile_t *tile);
-
 int get_board_score(board_ptr board, player_t player);
 
 tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
