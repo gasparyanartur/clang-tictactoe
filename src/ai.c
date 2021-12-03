@@ -44,14 +44,15 @@ tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
                 if (depth == 0)
                     break;
                 tile = tileStack[--depth];
-                continue;
+            }
+            else {
+                take_tile(board, tile, currentPlayer);
+                tileStack[depth++] = tile;
+                tile = 0;
             }
 
-            take_tile(board, tile, currentPlayer);
-            tileStack[depth++] = tile;
             weight = -weight;
             currentPlayer = get_other_player(currentPlayer);
-            tile = 0;
         }
         else {
             if (score * weight >= depthScores[depth] * weight) {
