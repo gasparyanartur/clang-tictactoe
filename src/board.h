@@ -17,6 +17,9 @@ typedef struct {
 
 typedef board_t* board_ptr;
 
+board_ptr create_board(tile_t tiles[BOARD_SIZE]);
+void destroy_board(board_ptr board);
+
 void print_board(board_ptr board);
 void take_tile(board_ptr board, tile_t tile, player_t player);
 void clear_tile(board_ptr board, tile_t tile);

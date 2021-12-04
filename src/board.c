@@ -1,6 +1,9 @@
+#include <malloc.h>
+#include <string.h>
 #include "board.h"
 #include "stdio.h"
 #include "stdbool.h"
+#include "memory.h"
 
 /*
  * Private Structures
@@ -96,5 +99,23 @@ player_t get_winner(board_ptr board) {
 
 bool is_board_full(board_ptr board) {
     return board->remainingTiles == 0;
+}
+
+board_ptr create_board(tile_t tiles[BOARD_SIZE]) {
+    board_ptr board = malloc(sizeof(board_t));
+    int remaining = 0;
+    memcpy(board->tiles, tiles, sizeof(tile_t[BOARD_SIZE]));
+
+    for(int i = 0; i < BOARD_SIZE; i++) {
+        if (tiles[i] == NO_PLAYER)
+            remaining++;
+    }
+    board->remainingTiles = remaining;
+
+    return board;
+}
+
+void destroy_board(board_ptr board) {
+    free(board);
 }
 

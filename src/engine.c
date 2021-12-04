@@ -2,6 +2,8 @@
 #include "board.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include <malloc.h>
+#include <vcruntime_string.h>
 #include "engine.h"
 #include "ai.h"
 
@@ -26,32 +28,51 @@ tile_t get_move(gamestate_ptr gamestate);
 bool is_current_player_human(gamestate_ptr gamestate);
 tile_t get_human_move(gamestate_ptr gamestate);
 tile_t get_ai_move(gamestate_ptr gamestate);
-
 bool is_valid_move(gamestate_ptr gamestate, uint_fast8_t tile);
-
 void process_gamestate(gamestate_ptr gamestate);
-
 void print_game_result(gamestate_ptr gamestate);
+gamestate_ptr create_gamestate(board_ptr board, bool player_one_is_human, bool player_two_is_human);
+void destroy_gamestate(gamestate_ptr gamestate);
 
 /*
  * Public functions
  */
 void run_game() {
-    //board_t board = {.tiles={0}, .remainingTiles=BOARD_SIZE};
-    board_t board = {.tiles={1, 0, 2, 2, 1, 1, 1, 0, 2}, .remainingTiles=2};
-    gamestate_t gamestate = {.board = &board, .isRunning=true, .winningPlayer=NO_PLAYER, .currentPlayer=PLAYER_X, .isHuman={false, true}};
+    tile_t tiles[BOARD_SIZE] = {0};
+    board_ptr board = create_board(tiles);
+    gamestate_ptr gamestate = create_gamestate(board, true, true);
 
-    print_board(&board);
-    while (gamestate.isRunning) {
-        play_turn(&gamestate);
+    print_board(board);
+     while (gamestate->isRunning) {
+        play_turn(gamestate);
     }
-
-    print_game_result(&gamestate);
+    print_game_result(gamestate);
+    destroy_gamestate(gamestate);
+    destroy_board(board);
 }
 
 /*
  * Private functions
  */
+
+gamestate_ptr create_gamestate(board_ptr board, bool player_one_is_human, bool player_two_is_human) {
+    gamestate_ptr gamestate = malloc(sizeof(gamestate_t));
+
+    gamestate->board = board;
+    gamestate->isRunning = true;
+    gamestate->currentPlayer = (board->remainingTiles % 2 == 0) ? PLAYER_O : PLAYER_X;
+    gamestate->winningPlayer = NO_PLAYER;
+
+    bool isHuman[] = {player_one_is_human, player_two_is_human};
+    memcpy(gamestate->isHuman, isHuman, sizeof(bool[2]));
+
+    return gamestate;
+}
+
+void destroy_gamestate(gamestate_ptr gamestate) {
+    free(gamestate);
+}
+
 void play_turn(gamestate_ptr gamestate) {
     tile_t move = get_move(gamestate);
     take_tile(gamestate->board, move, gamestate->currentPlayer);
