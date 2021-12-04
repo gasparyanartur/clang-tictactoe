@@ -17,6 +17,9 @@ typedef struct {
 
 typedef board_t* board_ptr;
 
+board_ptr create_board(tile_t tiles[BOARD_SIZE]);
+void destroy_board(board_ptr board);
+
 void print_board(board_ptr board);
 void take_tile(board_ptr board, tile_t tile, player_t player);
 void clear_tile(board_ptr board, tile_t tile);
@@ -24,8 +27,8 @@ player_t get_tile(board_ptr board, tile_t tile);
 
 bool tile_in_board(tile_t tile);
 bool is_tile_empty(board_ptr board, tile_t tile);
+bool is_board_full(board_ptr board);
 
-bool is_winner(board_ptr board, player_t player);
-
+player_t get_winner(board_ptr board);
 
 #endif //CLANG_TICTACTOE_BOARD_H
