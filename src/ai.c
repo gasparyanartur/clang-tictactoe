@@ -48,7 +48,7 @@ tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
     player_t currentPlayer = aiPlayer;
     uint_fast8_t depth = 0;
 
-    while (tile < BOARD_SIZE) {
+    while (true) {
         int score = get_board_score(board, currentPlayer);
 
         if (is_not_end_state(board, score)) {
