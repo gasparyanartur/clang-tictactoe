@@ -10,6 +10,8 @@ void make_move(board_ptr board, tile_t *tileStack, player_t *currentPlayer, tile
 
 void undo_move(board_ptr board, const tile_t *tileStack, tile_t *tile, uint_fast8_t *depth);
 
+bool is_not_end_state(board_ptr board, int score);
+
 tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
     /*  Implemented using the minimax algorithm with a loop.
      *  Assumes board starts off non-full, without a winner, and on the AIs turn.
@@ -47,7 +49,7 @@ tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
     while (tile < BOARD_SIZE) {
         int score = get_board_score(board, currentPlayer);
 
-        if (score == 0 && !is_board_full(board)) {
+        if (is_not_end_state(board, score)) {
             while (tile < BOARD_SIZE) {
                 if (is_tile_empty(board, tile)) {
                     make_move(board, tileStack, &currentPlayer, &tile, &depth);
@@ -66,12 +68,15 @@ tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
 
         if (depth == 0) break;
         undo_move(board, tileStack, &tile, &depth);
+
         END_TURN:
         currentPlayer = get_other_player(currentPlayer);
     }
 
     return optimalTile;
 }
+
+bool is_not_end_state(board_ptr board, int score) { return score == 0 && !is_board_full(board); }
 
 void undo_move(board_ptr board, const tile_t *tileStack, tile_t *tile, uint_fast8_t *depth) {
     (*tile) = tileStack[--(*depth)];
