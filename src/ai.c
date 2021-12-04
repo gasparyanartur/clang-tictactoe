@@ -4,26 +4,38 @@
 
 int get_board_score(board_ptr board, player_t player);
 
+int get_weight(player_t aiPlayer, player_t currentPlayer);
+
+void make_move(board_ptr board, tile_t *tileStack, player_t *currentPlayer, tile_t *tile, uint_fast8_t *depth);
+
+void undo_move(board_ptr board, const tile_t *tileStack, tile_t *tile, uint_fast8_t *depth);
+
 tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
-    /*  Implemented using the minimax algorithm with a loop
-     *  Assumes board starts off non-full and without a winner.
+    /*  Implemented using the minimax algorithm with a loop.
+     *  Assumes board starts off non-full, without a winner, and on the AIs turn.
      *
      *  Minimax algorithm:
      *      for each tile:
      *          calculate score
+     *          if no winner and no draw:
+     *              if no available tile:
+     *                  undo move if moves exist in history
+     *                  else finish search
      *
-     *          if no winner and tile is empty:
-     *              take tile
+     *              take first available tile
      *              restart tile query
+     *              end turn
      *
-     *          elif weight * score > high score at depth * weight:
-     *              high score at depth = score * weight
-     *              if maximizing:
-     *                  optimal tile = tile
+     *          else:
+     *              if current move gives high score:
+     *                  high score at depth = current score
+     *                  optimal move = current move
      *
-     *          restore tile
+     *              undo move
+     *              restore tile query to previous depth
+     *              end turn
      *
-     *      return high_score * weight
+     *      return optimal move
      */
     tile_t tileStack[BOARD_SIZE] = {0};
     int depthScores[BOARD_SIZE] = {-1, 1, -1, 1, -1, 1, -1, 1, -1};
@@ -31,49 +43,50 @@ tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
     tile_t tile = 0;
     player_t currentPlayer = aiPlayer;
     uint_fast8_t depth = 0;
-    int weight = 1;
 
     while (tile < BOARD_SIZE) {
         int score = get_board_score(board, currentPlayer);
 
         if (score == 0 && !is_board_full(board)) {
-            while (!is_tile_empty(board, tile) && tile < BOARD_SIZE)
+            while (tile < BOARD_SIZE) {
+                if (is_tile_empty(board, tile)) {
+                    make_move(board, tileStack, &currentPlayer, &tile, &depth);
+                    goto END_TURN;
+                }
                 tile++;
-
-            if (tile >= BOARD_SIZE) {
-                if (depth == 0)
-                    break;
-                tile = tileStack[--depth];
             }
-            else {
-                take_tile(board, tile, currentPlayer);
-                tileStack[depth++] = tile;
-                tile = 0;
-            }
-
-            weight = -weight;
-            currentPlayer = get_other_player(currentPlayer);
         }
         else {
+            int weight = get_weight(aiPlayer, currentPlayer);
             if (score * weight >= depthScores[depth] * weight) {
                 depthScores[depth] = score * weight;
                 optimalTile = tileStack[depth - 1];
             }
-
-            if (depth == 0)
-                break;
-
-            // TODO Fix bug where it does not set the move correctly
-
-            tile = tileStack[--depth];
-            clear_tile(board, tile);
-            weight = -weight;
-            currentPlayer = get_other_player(currentPlayer);
-            tile++;
         }
+
+        if (depth == 0) break;
+        undo_move(board, tileStack, &tile, &depth);
+        END_TURN:
+        currentPlayer = get_other_player(currentPlayer);
     }
 
     return optimalTile;
+}
+
+void undo_move(board_ptr board, const tile_t *tileStack, tile_t *tile, uint_fast8_t *depth) {
+    (*tile) = tileStack[--(*depth)];
+    clear_tile(board, (*tile));
+    (*tile)++;
+}
+
+void make_move(board_ptr board, tile_t *tileStack, player_t *currentPlayer, tile_t *tile, uint_fast8_t *depth) {
+    take_tile(board, (*tile), (*currentPlayer));
+    tileStack[(*depth)++] = (*tile);
+    (*tile) = 0;
+}
+
+int get_weight(player_t aiPlayer, player_t currentPlayer) {
+    return (aiPlayer == currentPlayer) ? 1:-1;
 }
 
 int get_board_score(board_ptr board, player_t player) {
