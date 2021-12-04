@@ -40,7 +40,7 @@ void destroy_gamestate(gamestate_ptr gamestate);
 void run_game() {
     tile_t tiles[BOARD_SIZE] = {0};
     board_ptr board = create_board(tiles);
-    gamestate_ptr gamestate = create_gamestate(board, true, true);
+    gamestate_ptr gamestate = create_gamestate(board, false, true);
 
     print_board(board);
      while (gamestate->isRunning) {
