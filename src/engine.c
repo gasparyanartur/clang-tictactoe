@@ -7,9 +7,6 @@
 #include "engine.h"
 #include "ai.h"
 
-/*
- * Private types
- */
 typedef struct {
     board_ptr board;
     bool isRunning;
@@ -20,9 +17,6 @@ typedef struct {
 
 typedef gamestate_t *gamestate_ptr;
 
-/*
- * Private function declaration
- */
 void play_turn(gamestate_ptr gamestate);
 tile_t get_move(gamestate_ptr gamestate);
 bool is_current_player_human(gamestate_ptr gamestate);
@@ -33,30 +27,54 @@ void process_gamestate(gamestate_ptr gamestate);
 void print_game_result(gamestate_ptr gamestate);
 gamestate_ptr create_gamestate(board_ptr board, bool player_one_is_human, bool player_two_is_human);
 void destroy_gamestate(gamestate_ptr gamestate);
-
 gamestate_ptr setup_gamestate(board_ptr board);
 
-/*
- * Public functions
- */
-void run_game() {
-    tile_t tiles[BOARD_SIZE] = {0};
-    board_ptr board = create_board(tiles);
-    gamestate_ptr gamestate = setup_gamestate(board);
+bool get_continue_status(gamestate_ptr gamestate);
 
-    print_board(board);
-    while (gamestate->isRunning) {
-        play_turn(gamestate);
+void run_game() {
+    while (true) {
+        tile_t tiles[BOARD_SIZE] = {0};
+        board_ptr board = create_board(tiles);
+        gamestate_ptr gamestate = setup_gamestate(board);
+
+        print_board(board);
+        while (gamestate->isRunning)
+            play_turn(gamestate);
+
+        print_game_result(gamestate);
+        bool running = get_continue_status(gamestate);
+        destroy_gamestate(gamestate);
+        destroy_board(board);
+        if (!running)
+            break;
     }
-    print_game_result(gamestate);
-    destroy_gamestate(gamestate);
-    destroy_board(board);
+}
+
+bool get_continue_status(gamestate_ptr gamestate) {
+    int state;
+    while (true) {
+        printf("Play again or exit?\n");
+        printf("\t0: play again\n\t1: exit\n");
+        scanf_s("%d", &state);
+        if (state == 0 || state == 1)
+            break;
+        printf("Invalid input. Try again.\n");
+    }
+    if (state == 0) {
+        printf("Restarting game.\n");
+        return true;
+    } else {
+        printf("Exiting game.\n");
+        gamestate->isRunning = false;
+        return false;
+    }
+
 }
 
 gamestate_ptr setup_gamestate(board_ptr board) {
     int state;
     while (true) {
-        printf("Two players or vs AI?\nEnter the following number to choose gamemode:\n");
+        printf("Two players or vs AI?\nEnter the following number to choose game mode:\n");
         printf("\t0: player vs player\n\t1: player vs AI\n\t2: AI vs player\n\t3: AI vs AI\n");
         scanf_s("%d", &state);
         if (state >= 0 && state <= 3)
@@ -83,10 +101,6 @@ gamestate_ptr setup_gamestate(board_ptr board) {
 
     return create_gamestate(board, human1, human2);
 }
-
-/*
- * Private functions
- */
 
 gamestate_ptr create_gamestate(board_ptr board, bool player_one_is_human, bool player_two_is_human) {
     gamestate_ptr gamestate = malloc(sizeof(gamestate_t));
@@ -117,11 +131,10 @@ void play_turn(gamestate_ptr gamestate) {
 
 void print_game_result(gamestate_ptr gamestate) {
     if (gamestate->winningPlayer == NO_PLAYER)
-        printf("Game ended in draw. ");
+        printf("Game ended in draw.\n");
     else
-        printf("Game won by player %d. ", gamestate->winningPlayer);
+        printf("Game won by player %d.\n", gamestate->winningPlayer);
 
-    printf("Exiting program.\n");
 }
 
 void process_gamestate(gamestate_ptr gamestate) {
