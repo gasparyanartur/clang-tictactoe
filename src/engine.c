@@ -34,21 +34,54 @@ void print_game_result(gamestate_ptr gamestate);
 gamestate_ptr create_gamestate(board_ptr board, bool player_one_is_human, bool player_two_is_human);
 void destroy_gamestate(gamestate_ptr gamestate);
 
+gamestate_ptr setup_gamestate(board_ptr board);
+
 /*
  * Public functions
  */
 void run_game() {
     tile_t tiles[BOARD_SIZE] = {0};
     board_ptr board = create_board(tiles);
-    gamestate_ptr gamestate = create_gamestate(board, false, true);
+    gamestate_ptr gamestate = setup_gamestate(board);
 
     print_board(board);
-     while (gamestate->isRunning) {
+    while (gamestate->isRunning) {
         play_turn(gamestate);
     }
     print_game_result(gamestate);
     destroy_gamestate(gamestate);
     destroy_board(board);
+}
+
+gamestate_ptr setup_gamestate(board_ptr board) {
+    int state;
+    while (true) {
+        printf("Two players or vs AI?\nEnter the following number to choose gamemode:\n");
+        printf("\t0: player vs player\n\t1: player vs AI\n\t2: AI vs player\n\t3: AI vs AI\n");
+        scanf_s("%d", &state);
+        if (state >= 0 && state <= 3)
+            break;
+        
+        printf("Invalid state. Try again.\n");
+    }
+    bool human1 = false;
+    bool human2 = false;
+    switch (state) {
+        case 0:
+            human1 = true;
+            human2 = true;
+            break;
+        case 1:
+            human1 = true;
+            break;
+        case 2:
+            human2 = true;
+            break;
+        default:
+            break;
+    }
+
+    return create_gamestate(board, human1, human2);
 }
 
 /*
