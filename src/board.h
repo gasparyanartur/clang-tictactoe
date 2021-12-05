@@ -30,5 +30,6 @@ bool is_tile_empty(board_ptr board, tile_t tile);
 bool is_board_full(board_ptr board);
 
 player_t get_winner(board_ptr board);
+player_t is_winner(board_ptr board, player_t player);
 
 #endif //CLANG_TICTACTOE_BOARD_H

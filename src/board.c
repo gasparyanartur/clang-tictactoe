@@ -97,6 +97,21 @@ player_t get_winner(board_ptr board) {
     return NO_PLAYER;
 }
 
+player_t is_winner(board_ptr board, player_t player) {
+    for (int score, j, i = 0; i < N_WIN_CONS; i++) {
+        score = 0;
+        for (j = 0; j < WIN_PATTERN_LEN; j++) {
+            int tile = WIN_CONDITIONS[i][j];
+            int value = get_tile(board, tile);
+            if (value == player)
+                score++;
+        }
+        if (score == WIN_PATTERN_LEN)
+            return true;
+    }
+    return false;
+}
+
 bool is_board_full(board_ptr board) {
     return board->remainingTiles == 0;
 }

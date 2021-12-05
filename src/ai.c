@@ -1,79 +1,97 @@
 #include "ai.h"
 
-#define INF_SCORE 100
-
-typedef struct {
-    tile_t tile;
-    int score;
-} minimax_result_t;
+#define INF_SCORE 10
+#define WIN_SCORE 1
 
 int get_board_score(board_ptr board, player_t player);
 
-minimax_result_t minimax(board_ptr board, player_t aiPlayer);
+tile_t minimax_tile(board_ptr board, player_t aiPlayer);
 
-minimax_result_t pack_result(tile_t tile, int score);
+int maximize_score(board_ptr board, tile_t tile, player_t aiPlayer);
 
-minimax_result_t maximize_result(board_ptr board, tile_t tile, player_t aiPlayer, player_t currentPlayer);
+int minimize_score(board_ptr board, tile_t tile, player_t aiPlayer);
 
-minimax_result_t minimize_result(board_ptr board, tile_t tile, player_t aiPlayer, player_t currentPlayer);
+bool is_terminal_state(board_ptr board, int score);
+
+tile_t next_free_tile(board_ptr board, tile_t t);
 
 tile_t calculate_optimal_move(board_ptr board, player_t aiPlayer) {
-    minimax_result_t result = minimax(board, aiPlayer);
-    return result.tile;
+    return minimax_tile(board, aiPlayer);
 }
 
-minimax_result_t minimax(board_ptr board, const player_t aiPlayer) {
-    return maximize_result(board, 0, aiPlayer, aiPlayer);
-}
+tile_t minimax_tile(board_ptr board, const player_t aiPlayer) {
+    tile_t maxTile = -1;
+    int maxScore = -INF_SCORE;
 
-minimax_result_t maximize_result(board_ptr board, tile_t tile, const player_t aiPlayer, const player_t currentPlayer) {
-    int score = get_board_score(board, aiPlayer);
-    if (score != 0 || is_board_full(board))
-        return pack_result(tile, -score);
-
-    minimax_result_t maxResult = {.score=-INF_SCORE, .tile=-1};
-    for(tile_t t = 0; t < BOARD_SIZE; t++) {
-        if (is_tile_empty(board, t)) {
-            take_tile(board, t, (aiPlayer));
-            minimax_result_t tempResult = minimize_result(board, t, aiPlayer, get_other_player(currentPlayer));
-            clear_tile(board, t);
-            if (tempResult.score >= maxResult.score)
-                maxResult = tempResult;
+    for (tile_t t = next_free_tile(board, 0); t < BOARD_SIZE; t = next_free_tile(board, ++t)) {
+        int score = minimize_score(board, t, aiPlayer);
+        if (score > maxScore) {
+            maxScore = score;
+            maxTile = t;
         }
+        if (score == WIN_SCORE)
+            return maxTile;
     }
-    return maxResult;
+
+    return maxTile;
 }
 
-minimax_result_t minimize_result(board_ptr board, tile_t tile, const player_t aiPlayer, const player_t currentPlayer) {
+int maximize_score(board_ptr board, tile_t tile, const player_t aiPlayer) {
+    player_t opponent = get_other_player(aiPlayer);
+    take_tile(board, tile, opponent);
+    int score = get_board_score(board, opponent);
+    if (is_terminal_state(board, score)) {
+        clear_tile(board, tile);
+        return -score;
+    }
+
+    int maxScore = -INF_SCORE;
+    for (tile_t t = next_free_tile(board, 0); t < BOARD_SIZE; t = next_free_tile(board, ++t)) {
+        score = minimize_score(board, t, aiPlayer);
+        if (score > maxScore)
+            maxScore = score;
+        if (score == WIN_SCORE)
+            break;
+    }
+
+    clear_tile(board, tile);
+    return maxScore;
+}
+
+int minimize_score(board_ptr board, tile_t tile, const player_t aiPlayer) {
+    take_tile(board, tile, aiPlayer);
     int score = get_board_score(board, aiPlayer);
-    if (score != 0 || board->remainingTiles == 0)
-        return pack_result(tile, -score);
-
-    minimax_result_t minResult = {.score=INF_SCORE, .tile=-1};
-    for(tile_t t = 0; t < BOARD_SIZE; t++) {
-        if (is_tile_empty(board, t)) {
-            take_tile(board, t, get_other_player(aiPlayer));
-            minimax_result_t tempResult = maximize_result(board, t, aiPlayer, get_other_player(currentPlayer));
-            clear_tile(board, t);
-            if (tempResult.score <= minResult.score)
-                minResult = tempResult;
-        }
+    if (is_terminal_state(board, score)) {
+        clear_tile(board, tile);
+        return score;
     }
-    return minResult;
+
+    int minScore = INF_SCORE;
+    for (tile_t t = next_free_tile(board, 0); t < BOARD_SIZE; t = next_free_tile(board, ++t)) {
+        score = maximize_score(board, t, aiPlayer);
+        if (score < minScore)
+            minScore = score;
+        if (score == -WIN_SCORE)
+            break;
+    }
+
+    clear_tile(board, tile);
+    return minScore;
 }
 
-minimax_result_t pack_result(tile_t tile, int score) {
-    minimax_result_t result = {.tile = tile, .score = score};
-    return result;
+tile_t next_free_tile(board_ptr board, tile_t t) {
+    while (t < BOARD_SIZE) {
+        if (is_tile_empty(board, t))
+            return t;
+        t++;
+    }
+    return t;
 }
+
+bool is_terminal_state(board_ptr board, int score) { return score != 0 || is_board_full(board); }
 
 int get_board_score(board_ptr board, player_t player) {
-    player_t winner = get_winner(board);
-
-    if (winner == NO_PLAYER)
-        return 0;
-    else if (winner == player)
-        return 1;
-    else
-        return -1;
+    if (is_winner(board, player))
+        return WIN_SCORE;
+    return 0;
 }
